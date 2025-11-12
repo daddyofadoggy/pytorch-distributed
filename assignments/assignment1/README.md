@@ -19,7 +19,6 @@ train_baseline.py   # Single GPU training (reference)
 train_ddp.py        # DDP training
 train_fsdp.py       # FSDP training with different strategies
 analyze_traces.ipynb # HTA trace analysis
-traces/             # Generated profiler traces for analysis
 ```
 
 ## Tasks
