@@ -46,7 +46,7 @@ def setup_ddp_model(model, device):
     # TODO: Wrap with DDP
     local_rank = int(os.environ['LOCAL_RANK'])
     # Hint: DDP(model, device_ids=[local_rank])
-    model = None
+    model = DDP(model, device_ids=[local_rank])
     
     return model
 

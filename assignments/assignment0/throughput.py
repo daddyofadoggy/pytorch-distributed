@@ -210,7 +210,7 @@ def main():
     tokens_per_sec = measure_tokens_per_second(model, batch_size, seq_length, device=device)
     
     # Extrapolate to modern LLMs
-    extrapolate_modern_training(tokens_per_sec)
+    extrapolate_modern_training(tokens_per_sec, model)
     
     # Bonus: Compare batch sizes
     compare_batch_sizes()
