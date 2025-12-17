@@ -44,8 +44,8 @@ class DistributedKJJ0DataLoader(KJJ0DataLoader):
         # TODO 1: Auto-detect distributed environment from environment variables
         # Hint: Use os.environ.get('RANK', 0) and os.environ.get('WORLD_SIZE', 1)
         # These variables are set automatically by torchrun
-        self.rank = 0  # rank if rank is not None else int(os.environ.get('RANK', 0))
-        self.world_size = 0  # world_size if world_size is not None else int(os.environ.get('WORLD_SIZE', 1))
+        self.rank = rank if rank is not None else int(os.environ.get('RANK', 0))  # rank if rank is not None else int(os.environ.get('RANK', 0))
+        self.world_size = world_size if world_size is not None else int(os.environ.get('WORLD_SIZE', 1))  # world_size if world_size is not None else int(os.environ.get('WORLD_SIZE', 1))
         
         # Initialize parent class
         super().__init__(file_paths, local_batch_size, sequence_length, device)
@@ -67,7 +67,7 @@ class DistributedKJJ0DataLoader(KJJ0DataLoader):
         self.current_position = 0
         
         # TODO 2: Number of tokens needed per rank per batch
-        num_tokens_local = 0  # self.local_batch_size * self.sequence_length
+        num_tokens_local = self.local_batch_size * self.sequence_length  # self.local_batch_size * self.sequence_length
         
         while True:
             try:
@@ -84,7 +84,7 @@ class DistributedKJJ0DataLoader(KJJ0DataLoader):
                 # Hint: current_position is the global position, add an offset based on rank
                 # Each rank needs num_tokens_local, so rank 0 starts at position 0,
                 # rank 1 starts at position num_tokens_local, etc.
-                pos_local = 0  # self.current_position + self.rank * num_tokens_local
+                pos_local = self.current_position + self.rank * num_tokens_local  # self.current_position + self.rank * num_tokens_local
                 
                 # Extract tokens (need +1 extra token for target shift)
                 buf = self.current_tokens[pos_local : pos_local + num_tokens_local + 1]
@@ -100,7 +100,7 @@ class DistributedKJJ0DataLoader(KJJ0DataLoader):
                 # TODO 4: Advance the global position for the next iteration
                 # Hint: All ranks need to advance by the total tokens consumed across all ranks
                 # If we have 2 ranks each consuming 8 tokens, advance by 2 * 8 = 16
-                self.current_position += 0  # self.world_size * num_tokens_local
+                self.current_position += self.world_size * num_tokens_local  # self.world_size * num_tokens_local
                 
                 yield input_batch.long().to(self.device), target_batch.long().to(self.device)
                 

@@ -39,7 +39,7 @@ def measure_tokens_per_second(model, batch_size, seq_length, num_steps=20, devic
     targets = torch.randint(0, 50257, (batch_size, seq_length), device=device)
     
     # TODO: Tokens processed per batch
-    tokens_per_batch = 0  # batch_size * seq_length
+    tokens_per_batch =  batch_size * seq_length  # batch_size * seq_length
     
     # Warmup
     print("Warming up...")
@@ -64,15 +64,15 @@ def measure_tokens_per_second(model, batch_size, seq_length, num_steps=20, devic
         loss.backward()
         optimizer.step()
         optimizer.zero_grad()
-        pass
+        #pass
     
     torch.cuda.synchronize()  # Wait for all GPU operations to finish
     end_time = time.time()
     
     # TODO: Calculate results
-    elapsed_time = 0  # end_time - start_time
-    total_tokens = 0  # num_steps * tokens_per_batch
-    tokens_per_second = 0  # total_tokens / elapsed_time
+    elapsed_time = end_time - start_time  # end_time - start_time
+    total_tokens = num_steps * tokens_per_batch  # num_steps * tokens_per_batch
+    tokens_per_second =  total_tokens / elapsed_time # total_tokens / elapsed_time
     
     print(f"\n--- Throughput Results ---")
     print(f"Total tokens processed: {total_tokens:,}")
@@ -106,13 +106,13 @@ def extrapolate_modern_training(tokens_per_sec_model, model):
     # TODO: Calculate scaling factor
     # Assumption: FLOPs scale roughly linearly with parameter count
     # So tokens/sec scales inversely with parameter count
-    scaling_factor = 0  # modern_llm_params / gpt2_small_params
+    scaling_factor = modern_llm_params / gpt2_small_params  # modern_llm_params / gpt2_small_params
     
     # TODO: Estimate modern LLM throughput
-    tokens_per_sec_1t = 0  # tokens_per_sec_124m / scaling_factor
+    tokens_per_sec_1t =  tokens_per_sec_model / scaling_factor # tokens_per_sec_124m / scaling_factor
     
     # TODO: Calculate training time
-    training_time_seconds = 0  # training_tokens / tokens_per_sec_1t
+    training_time_seconds = training_tokens / tokens_per_sec_1t  # training_tokens / tokens_per_sec_1t
     training_time_days = training_time_seconds / (24 * 3600)
     training_time_years = training_time_days / 365
     
@@ -200,7 +200,7 @@ def main():
     
     # TODO: Create model
     # model = MyGPT2LMHeadModel(config).to(device)
-    model = None
+    model = MyGPT2LMHeadModel(config).to(device)
     
     print(f"Model: GPT-2 Small ({sum(p.numel() for p in model.parameters()):,} parameters)")
     print(f"Batch size: {batch_size}")

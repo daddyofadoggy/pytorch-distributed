@@ -5,6 +5,8 @@ Task 1: Memory Analysis
 import torch
 from pathlib import Path
 
+import torch.optim.adamw
+
 from model.my_gpt2 import MyGPT2LMHeadModel
 from transformers import AutoConfig
 
@@ -32,15 +34,15 @@ def calculate_memory_breakdown(config, batch_size, seq_length):
     # TODO: Create model to get parameter count
     # Hint: model = MyGPT2LMHeadModel(config)
     #       total_params = sum(p.numel() for p in model.parameters())
-    model = None
-    total_params = 0
+    model = MyGPT2LMHeadModel(config)
+    total_params = sum(p.numel() for p in model.parameters())
     
     print(f"Model parameters: {total_params:,}")
     
     # TODO: Calculate memory components
-    param_memory_mb = 0      # total_params * 4 / (1024**2)
-    gradient_memory_mb = 0   # same as param_memory_mb  
-    optimizer_memory_mb = 0  # 2 * param_memory_mb (Adam momentum + variance)
+    param_memory_mb = (total_params * 4 ) / (1024 ** 2)     # total_params * 4 / (1024**2)
+    gradient_memory_mb = param_memory_mb   # same as param_memory_mb  
+    optimizer_memory_mb = 2 * param_memory_mb  # 2 * param_memory_mb (Adam momentum + variance)
     
     breakdown = {
         'parameters_mb': param_memory_mb,
@@ -75,32 +77,32 @@ def profile_actual_memory(config, batch_size, seq_length):
     try:
         # TODO: Create model and move to device
         # model = MyGPT2LMHeadModel(config).to(device)
-        model = None
+        model = MyGPT2LMHeadModel(config).to(device)
         
         # TODO: Create optimizer
         # optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4)
-        optimizer = None
+        optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4)
         
         # TODO: Create dummy training data
         # input_ids = torch.randint(0, config.vocab_size, (batch_size, seq_length), device=device)
         # targets = torch.randint(0, config.vocab_size, (batch_size, seq_length), device=device)
-        input_ids = None
-        targets = None
+        input_ids = torch.randint(0, config.vocab_size, (batch_size, seq_length), device=device)
+        targets = torch.randint(0, config.vocab_size, (batch_size, seq_length), device=device)
         
         # TODO: Run training steps to allocate gradient/optimizer memory
         for step in range(3):
             # Forward pass
-            # logits = model(input_ids)
-            # loss = torch.nn.functional.cross_entropy(
-            #     logits.view(-1, logits.size(-1)), 
-            #     targets.view(-1)
-            # )
+            logits = model(input_ids)
+            loss = torch.nn.functional.cross_entropy(
+                 logits.view(-1, logits.size(-1)), 
+                 targets.view(-1)
+             )
             
             # Backward pass
-            # loss.backward()
-            # optimizer.step() 
-            # optimizer.zero_grad()
-            pass
+            loss.backward()
+            optimizer.step() 
+            optimizer.zero_grad()
+            #pass
         
         if torch.cuda.is_available():
             peak_memory = torch.cuda.memory_allocated() / (1024**2)  # MB

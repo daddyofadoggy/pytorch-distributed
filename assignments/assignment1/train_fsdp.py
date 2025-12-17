@@ -73,12 +73,12 @@ def setup_fsdp_model(model, device, sharding_strategy_name='FULL_SHARD'):
     # We wrap each transformer.h[i] block individually, then wrap the full model
     
     # Hint: Loop through model.transformer.h and wrap each block
-    # for i, block in enumerate(model.transformer.h):
-    #     model.transformer.h[i] = FSDP(block, sharding_strategy=sharding_strategy)
+    for i, block in enumerate(model.transformer.h):
+         model.transformer.h[i] = FSDP(block, sharding_strategy=sharding_strategy)
     
     # TODO: Wrap the entire model with FSDP
     # Hint: model = FSDP(model, sharding_strategy=sharding_strategy)
-    model = None  # Replace with manual FSDP wrapping
+    model = FSDP(model, sharding_strategy=sharding_strategy) # Replace with manual FSDP wrapping
     
     return model
 
